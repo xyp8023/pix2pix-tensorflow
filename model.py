@@ -13,7 +13,7 @@ class pix2pix(object):
     def __init__(self, sess, image_size=256,
                  batch_size=1, sample_size=1, output_size=256,
                  gf_dim=64, df_dim=64, L1_lambda=100,
-                 input_c_dim=3, output_c_dim=3, dataset_name='facades',
+                 input_c_dim=1, output_c_dim=1, dataset_name='facades',
                  checkpoint_dir=None, sample_dir=None):
         """
 
@@ -110,7 +110,7 @@ class pix2pix(object):
 
 
     def load_random_samples(self):
-        data = np.random.choice(glob('./datasets/{}/val/*.jpg'.format(self.dataset_name)), self.batch_size)
+        data = np.random.choice(glob('./datasets/{}/val/*.png'.format(self.dataset_name)), self.batch_size)
         sample = [load_data(sample_file) for sample_file in data]
 
         if (self.is_grayscale):
@@ -153,7 +153,7 @@ class pix2pix(object):
             print(" [!] Load failed...")
 
         for epoch in xrange(args.epoch):
-            data = glob('./datasets/{}/train/*.jpg'.format(self.dataset_name))
+            data = glob('./datasets/{}/train/*.png'.format(self.dataset_name))
             #np.random.shuffle(data)
             batch_idxs = min(len(data), args.train_size) // self.batch_size
 
@@ -161,7 +161,9 @@ class pix2pix(object):
                 batch_files = data[idx*self.batch_size:(idx+1)*self.batch_size]
                 batch = [load_data(batch_file) for batch_file in batch_files]
                 if (self.is_grayscale):
-                    batch_images = np.array(batch).astype(np.float32)[:, :, :, None]
+                    # batch_images = np.array(batch).astype(np.float32)[:, :, :, None]
+                    batch_images = np.array(batch).astype(np.float32)
+
                 else:
                     batch_images = np.array(batch).astype(np.float32)
 
@@ -394,10 +396,10 @@ class pix2pix(object):
         init_op = tf.global_variables_initializer()
         self.sess.run(init_op)
 
-        sample_files = glob('./datasets/{}/val/*.jpg'.format(self.dataset_name))
+        sample_files = glob('./datasets/{}/val/*.png'.format(self.dataset_name))
 
         # sort testing input
-        n = [int(i) for i in map(lambda x: x.split('/')[-1].split('.jpg')[0], sample_files)]
+        n = [int(i) for i in map(lambda x: x.split('/')[-1].split('.png')[0], sample_files)]
         sample_files = [x for (y, x) in sorted(zip(n, sample_files))]
 
         # load testing input
